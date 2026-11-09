@@ -59,6 +59,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { api, signIn } from './services/demo-api';
+import EcosystemExperience from './EcosystemExperience';
 
 // Navigation items definition
 type NavItem = { id: string; label: string; icon: typeof Activity; badge?: string; category?: string };
@@ -86,7 +87,6 @@ export default function App() {
   const [entrySelected, setEntrySelected] = useState<boolean>(() => {
     return !!localStorage.getItem('healthway-entry-selected') || !!localStorage.getItem('healthway-demo-token');
   });
-  const [orgModalOpen, setOrgModalOpen] = useState(false);
   const [token, setToken] = useState(() => localStorage.getItem('healthway-demo-token') || '');
 
   const pageFromPath = () => {
@@ -111,7 +111,6 @@ export default function App() {
       if (e.key === 'Escape') {
         setCommandOpen(false);
         setSosModalOpen(false);
-        setOrgModalOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -141,7 +140,7 @@ export default function App() {
 
   // 1. Dual Entry Gateway (if not yet chosen)
   if (!entrySelected && !token) {
-    return <DualEntryGateway onSelectPersonal={handlePersonalEntry} onSelectOrg={() => setOrgModalOpen(true)} orgModalOpen={orgModalOpen} setOrgModalOpen={setOrgModalOpen} />;
+    return <EcosystemExperience onSelectPersonal={handlePersonalEntry} />;
   }
 
   // 2. Personal Authentication Screen (if chosen but not signed in)
@@ -260,151 +259,6 @@ export default function App() {
 
       {/* SOS Emergency Modal */}
       {sosModalOpen && <EmergencySosModal onClose={() => setSosModalOpen(false)} navigateTo={navigateTo} />}
-    </div>
-  );
-}
-
-/* =========================================================================================
-   1. DUAL ENTRY GATEWAY COMPONENT
-   ========================================================================================= */
-function DualEntryGateway({
-  onSelectPersonal,
-  onSelectOrg,
-  orgModalOpen,
-  setOrgModalOpen,
-}: {
-  onSelectPersonal: () => void;
-  onSelectOrg: () => void;
-  orgModalOpen: boolean;
-  setOrgModalOpen: (o: boolean) => void;
-}) {
-  return (
-    <div className="landing-page">
-      {/* 1. Header with logo and Sign in */}
-      <header className="landing-header">
-        <div className="brand-header-left">
-          <div className="brand-badge-icon">
-            <HeartPulse size={24} />
-          </div>
-          <div className="brand-header-title">
-            <strong>Smart Healthcare</strong>
-            <span>Ecosystem</span>
-          </div>
-        </div>
-
-        <button className="landing-signin-link" onClick={onSelectPersonal}>
-          Sign in →
-        </button>
-      </header>
-
-      {/* 2. Hero Body */}
-      <main className="landing-main">
-        {/* Badge */}
-        <div className="hero-pill-badge">
-          <Shield size={14} /> Private · Secure · AI-powered
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="hero-headline">
-          Your personal health, organized and understood — in one secure place.
-        </h1>
-
-        {/* Hero Subtitle */}
-        <p className="hero-subtitle">
-          A Personal Health Operating System for individuals. Maintain your records, track your vitals, and get transparent AI insights — no hospital required.
-        </p>
-
-        {/* Choice section prompt */}
-        <p className="hero-prompt-text">How would you like to use Smart Healthcare?</p>
-
-        {/* Dual Cards */}
-        <div className="dual-cards-grid">
-          {/* Card 1: Personal Health */}
-          <div
-            className="choice-card highlight"
-            onClick={onSelectPersonal}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onSelectPersonal()}
-          >
-            <div className="choice-icon-box">
-              <HeartPulse size={24} />
-            </div>
-            <h2>Personal Health</h2>
-            <p>Manage your personal health, records, medications and care.</p>
-            <div className="choice-enter-btn">
-              Enter →
-            </div>
-          </div>
-
-          {/* Card 2: Organization */}
-          <div
-            className="choice-card"
-            onClick={onSelectOrg}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && onSelectOrg()}
-          >
-            <div className="choice-icon-box">
-              <Building2 size={24} />
-            </div>
-            <h2>Organization</h2>
-            <p>Healthcare organization portal — manage patient consents and access.</p>
-            <div className="choice-enter-btn">
-              Enter →
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Strip */}
-        <div className="landing-feature-strip">
-          <div className="landing-feature-item">
-            <MessageCircle size={15} /> AI Health Assistant
-          </div>
-          <div className="landing-feature-item">
-            <TrendingUp size={15} /> Trend Analytics
-          </div>
-          <div className="landing-feature-item">
-            <ShieldCheck size={15} /> Consent & Privacy Control
-          </div>
-        </div>
-      </main>
-
-      {/* Organization Coming Soon Modal */}
-      {orgModalOpen && (
-        <div className="modal-overlay" onClick={() => setOrgModalOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title-row">
-                <Building2 className="text-teal" size={24} />
-                <h2>Organization Gateway Coming Soon</h2>
-              </div>
-              <button className="icon" onClick={() => setOrgModalOpen(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="info-banner">
-                <Info size={18} />
-                <p>
-                  <strong>Product Boundary Guarantee:</strong> This build is dedicated exclusively to <strong>Module 1: Personal Health Gateway</strong>.
-                </p>
-              </div>
-              <p className="mt-2">
-                The Organizational Gateway (covering hospital administration, bed management, ambulance dispatch, receptionist portals, and provider billing) is scheduled for future ecosystem modules.
-              </p>
-              <p className="mt-2">
-                You can proceed to use the Personal Health Gateway to explore all personal health operating system capabilities.
-              </p>
-            </div>
-            <div className="modal-actions">
-              <button className="primary full" onClick={() => { setOrgModalOpen(false); onSelectPersonal(); }}>
-                Continue to Personal Health Gateway <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -2934,4 +2788,3 @@ function SettingsPage({ token }: { token: string }) {
     </div>
   );
 }
-
